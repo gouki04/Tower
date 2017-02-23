@@ -4,6 +4,7 @@ namespace Tower
 {
     public class Monster : Obj
     {
+        public string Name;
         public int Hp = 0;
         public int Atk = 0;
         public int Def = 0;

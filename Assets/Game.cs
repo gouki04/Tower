@@ -5,10 +5,14 @@ using System.Collections.Generic;
 
 public class Game : MonoBehaviour
 {
-	protected void Start ()
+    public OldSchoolRPGDialogueGUI DialoguerSkin;
+
+    protected void Start ()
     {
         Transport(Floor, PlayerPos);
-	}
+        Dialoguer.Initialize();
+        DialoguerSkin.addDialoguerEvents();
+    }
 
     protected void Update ()
     {
