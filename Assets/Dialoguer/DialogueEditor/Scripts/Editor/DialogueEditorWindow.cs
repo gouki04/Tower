@@ -475,8 +475,12 @@ public class DialogueEditorWindow : EditorWindow {
 					case DialogueEditorPhaseTypes.ConditionalPhase:
 						drawConditionalPhase(phase);
 					break;
-					
-					case DialogueEditorPhaseTypes.SendMessagePhase:
+
+                    case DialogueEditorPhaseTypes.CustomConditionalPhase:
+                        drawCustomConditionalPhase(phase);
+                    break;
+
+                    case DialogueEditorPhaseTypes.SendMessagePhase:
 						drawSendMessagePhase(phase);
 					break;
 					
@@ -1142,8 +1146,66 @@ public class DialogueEditorWindow : EditorWindow {
 		drawOutputConnector(phase, new Vector2(elseOutputButtonRect.x, elseOutputButtonRect.y), 1);
 	}
 	
-	// draw SEND MESSAGE
-	private void drawSendMessagePhase(DialogueEditorPhaseObject phase){
+    private void drawCustomConditionalPhase(DialogueEditorPhaseObject phase)
+    {
+        Rect baseRect = drawPhaseBase(phase, 200, 190);
+
+        Rect conditionRect = new Rect(baseRect.x + 5, baseRect.yMax, baseRect.width - 10, 105);
+        Rect conditionTitleRect = new Rect(conditionRect.x + 5, conditionRect.y + 5, conditionRect.width - 10, 20);
+        Rect conditionInputRect = new Rect(conditionTitleRect.x + 2, conditionTitleRect.yMax + 5, conditionTitleRect.width - 4, 18);
+        Rect metadataTitleRect = new Rect(conditionRect.x + 5, conditionInputRect.yMax + 5, conditionRect.width - 10, 20);
+        Rect metadataInputRect = new Rect(metadataTitleRect.x + 2, metadataTitleRect.yMax + 5, metadataTitleRect.width - 4, 18);
+
+        if (isPro) {
+            DialogueEditorGUI.drawShadowedRect(conditionRect);
+            DialogueEditorGUI.drawShadowedRect(conditionTitleRect, 2);
+            DialogueEditorGUI.drawHighlightRect(conditionInputRect, 1, 1);
+            DialogueEditorGUI.drawShadowedRect(metadataTitleRect);
+            DialogueEditorGUI.drawHighlightRect(metadataInputRect, 1, 1);
+        }
+        else {
+            GUI.Box(conditionRect, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+            GUI.Box(conditionTitleRect, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+            GUI.Box(DialogueEditorGUI.getOutlineRect(conditionInputRect, 1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
+            GUI.Box(metadataTitleRect, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+            GUI.Box(DialogueEditorGUI.getOutlineRect(metadataInputRect, 1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
+        }
+
+        GUI.Label(new Rect(conditionTitleRect.x + 2, conditionTitleRect.y + 2, conditionTitleRect.width, conditionTitleRect.height), "Message Name");
+        phase.messageName = GUI.TextField(conditionInputRect, phase.messageName);
+        GUI.Label(new Rect(metadataTitleRect.x + 2, metadataTitleRect.y + 2, metadataTitleRect.width, metadataTitleRect.height), "Metadata");
+        phase.metadata = GUI.TextField(metadataInputRect, phase.metadata);
+
+        Rect trueRect = new Rect(baseRect.x + 5, conditionRect.yMax + 5, baseRect.width - 10, 55);
+        Rect trueTitleRect = new Rect(trueRect.x + 5, trueRect.y + 5, trueRect.width - 10, 20);
+
+        if (isPro) {
+            DialogueEditorGUI.drawShadowedRect(trueRect);
+            DialogueEditorGUI.drawShadowedRect(trueTitleRect, 2);
+        }
+        else {
+            GUI.Box(DialogueEditorGUI.getOutlineRect(trueRect, 1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
+            GUI.Box(DialogueEditorGUI.getOutlineRect(trueTitleRect, 1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+        }
+
+        GUI.Label(new Rect(trueTitleRect.x + 2, trueTitleRect.y + 2, trueTitleRect.width, 20), "True");
+        Rect trueOutputButtonRect = new Rect(trueTitleRect.x + trueTitleRect.width - 18, trueTitleRect.y + 2, 16, 16);
+        drawOutputConnector(phase, new Vector2(trueOutputButtonRect.x, trueOutputButtonRect.y), 0);
+
+        Rect falseTitleRect = new Rect(trueTitleRect.x, trueTitleRect.yMax + 5, trueTitleRect.width, trueTitleRect.height);
+        if (isPro) {
+            DialogueEditorGUI.drawShadowedRect(falseTitleRect);
+        }
+        else {
+            GUI.Box(DialogueEditorGUI.getOutlineRect(falseTitleRect, 1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+        }
+        GUI.Label(new Rect(falseTitleRect.x + 2, falseTitleRect.y + 2, falseTitleRect.width, falseTitleRect.height), "False");
+        Rect falseOutputButtonRect = new Rect(falseTitleRect.x + falseTitleRect.width - 18, falseTitleRect.y + 2, 16, 16);
+        drawOutputConnector(phase, new Vector2(falseOutputButtonRect.x, falseOutputButtonRect.y), 1);
+    }
+
+    // draw SEND MESSAGE
+    private void drawSendMessagePhase(DialogueEditorPhaseObject phase){
 		Rect baseRect = drawPhaseBase(phase, 200, 135);
 		
 		Rect sendMessageRect = new Rect(baseRect.x + 5, baseRect.yMax, baseRect.width - 10, 105);
@@ -1638,8 +1700,13 @@ public class DialogueEditorWindow : EditorWindow {
 				position.x += 280;
 				position.y += 210 + (outputIndex * 80);
 			break;
-			
-			case DialogueEditorPhaseTypes.SendMessagePhase:
+
+            case DialogueEditorPhaseTypes.CustomConditionalPhase:
+                position.x += 180;
+                position.y += 155 + (outputIndex * 25);
+            break;
+
+            case DialogueEditorPhaseTypes.SendMessagePhase:
 				position.x += 180;
 				position.y += 40;
 			break;

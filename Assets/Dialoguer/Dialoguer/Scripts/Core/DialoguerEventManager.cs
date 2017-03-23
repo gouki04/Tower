@@ -52,5 +52,15 @@ namespace DialoguerCore{
 		public static void dispatchOnMessageEvent(string message, string metadata){
 			if(onMessageEvent != null) onMessageEvent(message, metadata);
 		}
+
+        public delegate bool ConditionHandler(string message, string metadata);
+        public static event ConditionHandler onCondition;
+        public static bool dispatchOnCondition(string message, string metadata)
+        {
+            if (onCondition != null)
+                return onCondition(message, metadata);
+            else
+                return false;
+        }
 	}
 }

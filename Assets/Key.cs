@@ -9,6 +9,7 @@ namespace Tower
         Yellow,
         Blue,
         Red,
+        Normal,
     }
 
     public class Key : Obj

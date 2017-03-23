@@ -133,8 +133,12 @@ namespace DialoguerEditor{
 						case DialogueEditorPhaseTypes.ConditionalPhase:
 							newPhases.Add(new ConditionalPhase(phase.variableScope, phase.variableType, phase.variableId, phase.variableGetEquation, phase.variableGetValue, phase.outs));
 						break;
-						
-						case DialogueEditorPhaseTypes.SendMessagePhase:
+
+                        case DialogueEditorPhaseTypes.CustomConditionalPhase:
+                            newPhases.Add(new CustomConditionPhase(phase.messageName, phase.metadata, phase.outs));
+                        break;
+
+                        case DialogueEditorPhaseTypes.SendMessagePhase:
 							newPhases.Add(new SendMessagePhase(phase.messageName, phase.metadata, phase.outs));
 						break;
 						

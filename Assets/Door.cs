@@ -10,6 +10,10 @@ namespace Tower
 
         public override bool Trigger(Game game)
         {
+            if (KeyType == EKey.Normal) {
+                return true;
+            }
+
             return game.UseKey(KeyType);
         }
     }

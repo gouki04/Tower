@@ -51,8 +51,12 @@ namespace DialoguerEditor{
 				case DialogueEditorPhaseTypes.ConditionalPhase:
 					phases.Add(DialogueEditorPhaseTemplates.newConditionalPhase(phases.Count));
 				break;
-				
-				case DialogueEditorPhaseTypes.SendMessagePhase:
+
+                case DialogueEditorPhaseTypes.CustomConditionalPhase:
+                    phases.Add(DialogueEditorPhaseTemplates.newCustomConditionalPhase(phases.Count));
+                break;
+
+                case DialogueEditorPhaseTypes.SendMessagePhase:
 					phases.Add(DialogueEditorPhaseTemplates.newSendMessagePhase(phases.Count));
 				break;
 				

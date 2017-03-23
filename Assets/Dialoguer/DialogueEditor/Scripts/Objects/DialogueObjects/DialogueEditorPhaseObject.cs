@@ -88,10 +88,11 @@ namespace DialoguerEditor{
 		WaitPhase,
 		SetVariablePhase,
 		ConditionalPhase,
-		SendMessagePhase,
+        SendMessagePhase,
 		EndPhase,
-		EmptyPhase // Empty Phase must be last
-	}
+        CustomConditionalPhase,
+        EmptyPhase // Empty Phase must be last
+    }
 	
 	public class DialogueEditorPhaseType{
 		public DialogueEditorPhaseTypes type;
@@ -171,9 +172,19 @@ namespace DialoguerEditor{
 				getLightIcon("conditionalPhase")
 			);
 			phases.Add((int)DialogueEditorPhaseTypes.ConditionalPhase, phase);
-			
-			// SendMessagePhase
-			phase = new DialogueEditorPhaseType(
+
+            // ConditionalPhase
+            phase = new DialogueEditorPhaseType(
+                DialogueEditorPhaseTypes.CustomConditionalPhase,
+                "Custom Condition",
+                "Moves to an out-path based on a custom condition.",
+                getDarkIcon("conditionalPhase"),
+                getLightIcon("conditionalPhase")
+            );
+            phases.Add((int)DialogueEditorPhaseTypes.CustomConditionalPhase, phase);
+
+            // SendMessagePhase
+            phase = new DialogueEditorPhaseType(
 				DialogueEditorPhaseTypes.SendMessagePhase,
 				"Message Event",
 				"Dispatch an event which can be easily listened to and handled.",
@@ -365,9 +376,31 @@ namespace DialoguerEditor{
 			
 			return phase;
 		}
-		
-		// SEND MESSAGE
-		public static DialogueEditorPhaseObject newSendMessagePhase(int id){
+
+        // CUSTOM CONDITIONAL
+        public static DialogueEditorPhaseObject newCustomConditionalPhase(int id)
+        {
+            DialogueEditorPhaseObject phase = new DialogueEditorPhaseObject();
+
+            phase.id = id;
+            phase.type = DialogueEditorPhaseTypes.CustomConditionalPhase;
+
+            phase.position = Vector2.zero;
+
+            phase.advanced = false;
+            phase.metadata = string.Empty;
+
+            phase.outs = new List<int?>();
+            phase.outs.Add(null);
+            phase.outs.Add(null);
+
+            phase.messageName = string.Empty;
+
+            return phase;
+        }
+
+        // SEND MESSAGE
+        public static DialogueEditorPhaseObject newSendMessagePhase(int id){
 			DialogueEditorPhaseObject phase = new DialogueEditorPhaseObject();
 			
 			phase.id = id;

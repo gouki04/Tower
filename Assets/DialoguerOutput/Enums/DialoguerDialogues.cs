@@ -16,4 +16,6 @@ public enum DialoguerDialogues{
 	feiveteenlan = 13,
 	fivenehong = 14,
 	eighteengongzhu = 15,
+	Spirit = 16,
+	Shop = 17,
 }

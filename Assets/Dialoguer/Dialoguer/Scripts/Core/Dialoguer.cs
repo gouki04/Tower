@@ -25,7 +25,8 @@ public class Dialoguer{
 		DialoguerEventManager.onWaitStart += events.handler_WaitStart;
 		DialoguerEventManager.onWaitComplete += events.handler_WaitComplete;
 		DialoguerEventManager.onMessageEvent += events.handler_MessageEvent;
-	}
+		DialoguerEventManager.onCondition += events.handler_CustomCondition;
+    }
 	#endregion
 
 	#region Dialogues
@@ -251,9 +252,21 @@ public class DialoguerEvents{
 	/// <summary>Occurs when Dialoguer sends a message with the SendMessage node.</summary>
 	public event MessageEventHandler onMessageEvent;
 	public delegate void MessageEventHandler(string message, string metadata);
-	
-	/// <summary>DO NOT USE, USED FOR DIALOGUER INTERNAL</summary>
-	public void handler_MessageEvent(string message, string metadata){
+
+    /// <summary>DO NOT USE, USED FOR DIALOGUER INTERNAL</summary>
+    public void handler_MessageEvent(string message, string metadata){
 		if(onMessageEvent != null) onMessageEvent(message, metadata);
 	}
+
+    public event CustomConditionHandler onCondition;
+    public delegate bool CustomConditionHandler(string message, string metadata);
+
+    /// <summary>DO NOT USE, USED FOR DIALOGUER INTERNAL</summary>
+    public bool handler_CustomCondition(string message, string metadata)
+    {
+        if (onCondition != null)
+            return onCondition(message, metadata);
+        else
+            return false;
+    }
 }

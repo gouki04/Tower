@@ -20,9 +20,11 @@ public class Game : MonoBehaviour
             var tile_index = ScreenPosToTileIndex(Input.mousePosition);
             Tile = Floor.GetTileOrNull(tile_index);
 
-            if (CheckTileIndexTriggerable(tile_index)) {
+            if (Tile != null && CheckTileIndexTriggerable(tile_index)) {
                 var obj = Tile.gameObject.GetComponent<Tower.Obj>();
                 if (obj != null) {
+                    obj.Pos = tile_index;
+
                     if (obj.Trigger(this)) {
                         Floor.EraseTile(tile_index);
                         UpdateTileMap();
@@ -118,6 +120,13 @@ public class Game : MonoBehaviour
         UpdateTileMap();
 
         Floor.gameObject.SetActive(true);
+    }
+
+    public void MoveTile(int from_row, int from_col, int row, int col)
+    {
+        var tile = Floor.GetTileOrNull(from_row, from_col);
+        Floor.SetTile(row, col, tile);
+        //Floor.EraseTile(from_row, from_col);
     }
 
     protected void OnGUI()
