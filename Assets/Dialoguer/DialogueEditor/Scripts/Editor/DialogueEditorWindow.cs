@@ -184,7 +184,7 @@ public class DialogueEditorWindow : EditorWindow {
 					__removeMultiple = true;
 					GUI.FocusControl("null");
 				}else{
-					DialogueEditorDataManager.data.removeDialogue(1);
+					DialogueEditorDataManager.data.removeCurrentDialogue();
 				}
 			}
 		}else{

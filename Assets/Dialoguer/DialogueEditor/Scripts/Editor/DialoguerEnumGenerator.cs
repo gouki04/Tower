@@ -17,7 +17,7 @@ public class DialoguerEnumGenerator : EditorWindow {
 		lines.Add("public enum DialoguerDialogues{");
 		List<DialogueEditorDialogueObject> dialogues = DialogueEditorDataManager.data.dialogues;
 		for(int i = 0; i<dialogues.Count; i+=1){
-			Regex rgx = new Regex("[^a-zA-Z+$]");
+			Regex rgx = new Regex("[^a-zA-Z0-9_+$]");
 			string varName = rgx.Replace(dialogues[i].name, "");
 			lines.Add("\t"+varName+" = "+i+",");
 		}

@@ -59,8 +59,27 @@ namespace DialoguerEditor{
 			
 			currentDialogueId = currentDialogueId;
 		}
-		
-		public string[] getThemeNames(bool includeId = false){
+
+        public void removeDialogueAt(int index)
+        {
+            if (count < 1) {
+                return;
+            }
+
+            dialogues.RemoveAt(index);
+            for (var i = index; i < dialogues.Count; ++i) {
+                dialogues[i].id = i;
+            }
+
+            currentDialogueId = currentDialogueId;
+        }
+
+        public void removeCurrentDialogue()
+        {
+            removeDialogueAt(currentDialogueId);
+        }
+
+        public string[] getThemeNames(bool includeId = false){
 			string[] themeNames = new string[themes.themes.Count];
 			for(int i = 0; i<themes.themes.Count; i+=1){
 				themeNames[i] = string.Empty;
