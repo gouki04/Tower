@@ -31,6 +31,10 @@ namespace Tower
 
         public void TriggerTile(TileIndex tile_pos)
         {
+            if (TriggeringTile != null) {
+                return;
+            }
+
             var tile = Floor.GetTileAt(tile_pos);
             if (tile != null) {
                 if (tile.CheckTrigger(Player)) {

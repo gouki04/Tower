@@ -14,8 +14,8 @@ namespace Tower
 
         public override IEnumerator OnTrigger(Player player)
         {
-            Logic.Instance.Transport(TargetFloor, TargetRow, TargetColumn);
             yield return 0;
+            Logic.Instance.Transport(TargetFloor, TargetRow, TargetColumn);
         }
     }
 }
