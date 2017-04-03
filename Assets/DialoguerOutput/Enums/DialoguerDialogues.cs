@@ -3,4 +3,6 @@ public enum DialoguerDialogues{
 	Spirit = 0,
 	Shop = 1,
 	Floor2_OldMan = 2,
+	Floor2_Seller = 3,
+	Floor3_Shop = 4,
 }

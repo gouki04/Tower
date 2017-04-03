@@ -116,153 +116,154 @@ public class DialogueEditorWindow : EditorWindow {
 		//Draw windows
 		drawWindows();
 	}
-	
-	
-	// DIALOGUE SELECTOR
-	
-	private void drawDialogueSelector(){
-		__selectorSection.bodyRect = new Rect(5,5,250,Screen.height - 20 - 5*2);
-		__selectorSection.draw();
-		
-		// No-Entries Hint
-		if(DialogueEditorDataManager.data.count <= 0){
-			Rect warningBox = new Rect(__selectorSection.scrollRect.x + 20, __selectorSection.scrollRect.y + 20, __selectorSection.scrollRect.width - 40 - 15, 70);
-			if(isPro){
-				GUI.color = Color.black;
-				GUI.Box(new Rect(warningBox.x - 1, warningBox.y - 1, warningBox.width + 2, warningBox.height+2),string.Empty);
-				GUI.color = GUI.contentColor;
-				GUI.Box(warningBox, string.Empty);
-			}else{
-				GUI.Box(warningBox, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
-				GUI.Box(warningBox, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
-				GUI.Box(warningBox, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
-			}
-			GUIStyle style = new GUIStyle(EditorStyles.miniLabel);
-			style.wordWrap = true;
-			style.alignment = TextAnchor.MiddleCenter;
-			GUI.Label(warningBox, "Press 'Add' to begin creating dialogue objects!", style);
-			
-		}
-		
-		
-		int rowHeight = 20;
-		int rowSpacing = (EditorGUIUtility.isProSkin) ? 1 : -1;
-		int newScrollHeight = (__selectorSection.scrollRect.height > ((rowHeight + rowSpacing)*DialogueEditorDataManager.data.count)) ? (int)__selectorSection.scrollRect.height : (rowHeight + rowSpacing)*DialogueEditorDataManager.data.count;
-		
-		GUI.SetNextControlName("null");
-		GUI.Label(new Rect(0,0,1,1), string.Empty);
-		
-		// ADD/REMOVE BUTTONS
-		bool shift = Event.current.shift;
-		
-		// ADD
-		Rect addButtonRect = new Rect(__selectorSection.toolbarRect.x + 5, __selectorSection.toolbarRect.y + 5,  (__selectorSection.toolbarRect.width * 0.5f) - 5, __selectorSection.toolbarRect.height - 10);
-		string addButtonText = (shift) ? "Add Multiple" : "Add";
-		if(GUI.Button(addButtonRect, addButtonText, DialogueEditorGUI.gui.GetStyle("toolbar_left"))){
-			if (shift) {
-				resetWindow();
-				__addMultiple = true;
-				GUI.FocusControl("null");
-			}else{
-				DialogueEditorDataManager.data.addDialogue(1);
-			}
-		}
-		
-		if(addButtonRect.Contains(Event.current.mousePosition)){
-			string toolName = (shift) ? "Add Multiple" : "Add";
-			string toolInfo = (shift) ? "Add multiple entries to the end of the list." : "Add entry to the end of the list.";
-			setToolInfo(toolName, toolInfo);
-		}
-		
-		// REMOVE
-		Rect deleteButtonRect = new Rect((__selectorSection.toolbarRect.width * 0.5f) + 10, __selectorSection.toolbarRect.y + 5, (__selectorSection.toolbarRect.width * 0.5f) - 5, __selectorSection.toolbarRect.height - 10);
-		string deleteButtonText = (shift) ? "Remove Multiple" : "Remove";
-		if(DialogueEditorDataManager.data.count > 0){
-			if(GUI.Button(deleteButtonRect, deleteButtonText, DialogueEditorGUI.gui.GetStyle("toolbar_right"))){
-				if (shift && DialogueEditorDataManager.data.count > 1) {
-					__addMultiple = false;
-					__removeMultiple = true;
-					GUI.FocusControl("null");
-				}else{
-					DialogueEditorDataManager.data.removeCurrentDialogue();
-				}
-			}
-		}else{
-			GUI.color = new Color(1,1,1,0.25f);
-			GUI.Button(deleteButtonRect, deleteButtonText, DialogueEditorGUI.gui.GetStyle("toolbar_right"));
-		}
-		
-		if(deleteButtonRect.Contains(Event.current.mousePosition)){
-			string toolName = (shift) ? "Remove Multiple" : "Remove";
-			string toolInfo = (shift) ? "Remove multiple entries from the end of the list." : "Remove entry from the end of the list.";
-			setToolInfo(toolName, toolInfo);
-		}
 
-		GUI.color = GUI.contentColor;
 
-		Vector2 mouseClickPosition = Vector2.zero;
-		if(Event.current.type == EventType.MouseDown && Event.current.button == 0 && __selectorSection.scrollRect.Contains(Event.current.mousePosition)){
-			mouseClickPosition = new Vector2(Event.current.mousePosition.x - __selectorSection.scrollRect.x - 3, Event.current.mousePosition.y - __selectorSection.scrollRect.y - 3 + DialogueEditorDataManager.data.selectorScrollPosition.y);
-		}
-		
-		
-		// SCROLL VIEW
-		Rect scrollViewRect = new Rect(0,0,__selectorSection.scrollRect.width - 16,newScrollHeight);
-		if(!isPro){
-			GUI.Box(DialogueEditorGUI.getOutlineRect(__selectorSection.scrollRect, 1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
-			//GUI.Box(DialogueEditorGUI.getOutlineRect(__selectorSection.scrollRect, 1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
-		}
-		
-		DialogueEditorDataManager.data.selectorScrollPosition = GUI.BeginScrollView(__selectorSection.scrollRect, DialogueEditorDataManager.data.selectorScrollPosition, scrollViewRect,false, true);
-		
-		GUI.color = (isPro)? new Color(1,1,1,0.25f) : new Color(0,0,0,0.1f);
-		GUI.DrawTextureWithTexCoords(
-			new Rect(0,0,__selectorSection.scrollRect.width - 16, newScrollHeight),
-			DialogueEditorGUI.scrollboxBgTexture,
-			new Rect(0, 0, scrollViewRect.width / DialogueEditorGUI.scrollboxBgTexture.width, scrollViewRect.height / DialogueEditorGUI.scrollboxBgTexture.height)
-		);
-		GUI.color = GUI.contentColor;
-		
-		for(int i = 0; i<DialogueEditorDataManager.data.count; i+=1){
-			Rect row = new Rect(0,0+((rowHeight + rowSpacing)*i),__selectorSection.scrollRect.width - 15,20);
-			if(mouseClickPosition != Vector2.zero && row.Contains(mouseClickPosition)){
-				DialogueEditorDataManager.data.currentDialogueId = i;
-				getPhaseScrollLimits();
-			}
-			GUI.color = new Color(1,1,1,0.5f);
-			GUI.Box(row, string.Empty);
-			if(i == DialogueEditorDataManager.data.currentDialogueId){
-				if(isPro){
-					GUI.color = GUI.contentColor;
-					GUI.Box(row, string.Empty);
-					GUI.Box(row, string.Empty);
-				}else{
-					GUI.Box(row, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
-					GUI.Box(row, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
-				}
-			}
-			
-			if(row.Contains(Event.current.mousePosition)){
-				if(isPro){
-					GUI.color = Color.black;
-					GUI.Box(new Rect(row.x - 1, row.y - 1, row.width + 2, row.height + 2), string.Empty);
-				}else{
-					GUI.color = Color.white;
-					GUI.Box(row, string.Empty);
-					GUI.Box(row, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
-					GUI.Box(row, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
-				}
-			}
-			
-			GUI.color = GUI.contentColor;
-			
-			Rect labelNumberRow = new Rect(row.x + 2, row.y + 2, row.width - 4, row.height - 4);
-			Rect labelNameRow = new Rect(labelNumberRow.x + 25, labelNumberRow.y, labelNumberRow.width - 25, labelNumberRow.height);
-			GUI.Label(labelNumberRow, DialogueEditorDataManager.data.dialogues[i].id.ToString());
-			GUI.Label(labelNameRow, (DialogueEditorDataManager.data.dialogues[i].name == string.Empty) ? "-" : DialogueEditorDataManager.data.dialogues[i].name);
-		}
-		GUI.EndScrollView();
-	}
+    // DIALOGUE SELECTOR
+
+    private void drawDialogueSelector()
+    {
+        __selectorSection.bodyRect = new Rect(5, 5, 250, Screen.height - 20 - 5 * 2);
+        __selectorSection.draw();
+
+        // No-Entries Hint
+        if (DialogueEditorDataManager.data.count <= 0) {
+            Rect warningBox = new Rect(__selectorSection.scrollRect.x + 20, __selectorSection.scrollRect.y + 20, __selectorSection.scrollRect.width - 40 - 15, 70);
+            if (isPro) {
+                GUI.color = Color.black;
+                GUI.Box(new Rect(warningBox.x - 1, warningBox.y - 1, warningBox.width + 2, warningBox.height + 2), string.Empty);
+                GUI.color = GUI.contentColor;
+                GUI.Box(warningBox, string.Empty);
+            } else {
+                GUI.Box(warningBox, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+                GUI.Box(warningBox, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+                GUI.Box(warningBox, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+            }
+            GUIStyle style = new GUIStyle(EditorStyles.miniLabel);
+            style.wordWrap = true;
+            style.alignment = TextAnchor.MiddleCenter;
+            GUI.Label(warningBox, "Press 'Add' to begin creating dialogue objects!", style);
+
+        }
+
+
+        int rowHeight = 20;
+        int rowSpacing = (EditorGUIUtility.isProSkin) ? 1 : -1;
+        int newScrollHeight = (__selectorSection.scrollRect.height > ((rowHeight + rowSpacing)*DialogueEditorDataManager.data.count)) ? (int)__selectorSection.scrollRect.height : (rowHeight + rowSpacing)*DialogueEditorDataManager.data.count;
+
+        GUI.SetNextControlName("null");
+        GUI.Label(new Rect(0, 0, 1, 1), string.Empty);
+
+        // ADD/REMOVE BUTTONS
+        bool shift = Event.current.shift;
+
+        // ADD
+        Rect addButtonRect = new Rect(__selectorSection.toolbarRect.x + 5, __selectorSection.toolbarRect.y + 5,  (__selectorSection.toolbarRect.width * 0.5f) - 5, __selectorSection.toolbarRect.height - 10);
+        string addButtonText = (shift) ? "Add Multiple" : "Add";
+        if (GUI.Button(addButtonRect, addButtonText, DialogueEditorGUI.gui.GetStyle("toolbar_left"))) {
+            if (shift) {
+                resetWindow();
+                __addMultiple = true;
+                GUI.FocusControl("null");
+            } else {
+                DialogueEditorDataManager.data.addDialogue(1);
+            }
+        }
+
+        if (addButtonRect.Contains(Event.current.mousePosition)) {
+            string toolName = (shift) ? "Add Multiple" : "Add";
+            string toolInfo = (shift) ? "Add multiple entries to the end of the list." : "Add entry to the end of the list.";
+            setToolInfo(toolName, toolInfo);
+        }
+
+        // REMOVE
+        Rect deleteButtonRect = new Rect((__selectorSection.toolbarRect.width * 0.5f) + 10, __selectorSection.toolbarRect.y + 5, (__selectorSection.toolbarRect.width * 0.5f) - 5, __selectorSection.toolbarRect.height - 10);
+        string deleteButtonText = (shift) ? "Remove Multiple" : "Remove";
+        if (DialogueEditorDataManager.data.count > 0) {
+            if (GUI.Button(deleteButtonRect, deleteButtonText, DialogueEditorGUI.gui.GetStyle("toolbar_right"))) {
+                if (shift && DialogueEditorDataManager.data.count > 1) {
+                    __addMultiple = false;
+                    __removeMultiple = true;
+                    GUI.FocusControl("null");
+                } else {
+                    DialogueEditorDataManager.data.removeCurrentDialogue();
+                }
+            }
+        } else {
+            GUI.color = new Color(1, 1, 1, 0.25f);
+            GUI.Button(deleteButtonRect, deleteButtonText, DialogueEditorGUI.gui.GetStyle("toolbar_right"));
+        }
+
+        if (deleteButtonRect.Contains(Event.current.mousePosition)) {
+            string toolName = (shift) ? "Remove Multiple" : "Remove";
+            string toolInfo = (shift) ? "Remove multiple entries from the end of the list." : "Remove entry from the end of the list.";
+            setToolInfo(toolName, toolInfo);
+        }
+
+        GUI.color = GUI.contentColor;
+
+        Vector2 mouseClickPosition = Vector2.zero;
+        if (Event.current.type == EventType.MouseDown && Event.current.button == 0 && __selectorSection.scrollRect.Contains(Event.current.mousePosition)) {
+            mouseClickPosition = new Vector2(Event.current.mousePosition.x - __selectorSection.scrollRect.x - 3, Event.current.mousePosition.y - __selectorSection.scrollRect.y - 3 + DialogueEditorDataManager.data.selectorScrollPosition.y);
+        }
+
+
+        // SCROLL VIEW
+        Rect scrollViewRect = new Rect(0,0,__selectorSection.scrollRect.width - 16,newScrollHeight);
+        if (!isPro) {
+            GUI.Box(DialogueEditorGUI.getOutlineRect(__selectorSection.scrollRect, 1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
+            //GUI.Box(DialogueEditorGUI.getOutlineRect(__selectorSection.scrollRect, 1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
+        }
+
+        DialogueEditorDataManager.data.selectorScrollPosition = GUI.BeginScrollView(__selectorSection.scrollRect, DialogueEditorDataManager.data.selectorScrollPosition, scrollViewRect, false, true);
+
+        GUI.color = (isPro) ? new Color(1, 1, 1, 0.25f) : new Color(0, 0, 0, 0.1f);
+        GUI.DrawTextureWithTexCoords(
+            new Rect(0, 0, __selectorSection.scrollRect.width - 16, newScrollHeight),
+            DialogueEditorGUI.scrollboxBgTexture,
+            new Rect(0, 0, scrollViewRect.width / DialogueEditorGUI.scrollboxBgTexture.width, scrollViewRect.height / DialogueEditorGUI.scrollboxBgTexture.height)
+        );
+        GUI.color = GUI.contentColor;
+
+        for (int i = 0; i < DialogueEditorDataManager.data.count; i += 1) {
+            Rect row = new Rect(0,0+((rowHeight + rowSpacing)*i),__selectorSection.scrollRect.width - 15,20);
+            if (mouseClickPosition != Vector2.zero && row.Contains(mouseClickPosition)) {
+                DialogueEditorDataManager.data.currentDialogueId = i;
+                getPhaseScrollLimits();
+            }
+            GUI.color = new Color(1, 1, 1, 0.5f);
+            GUI.Box(row, string.Empty);
+            if (i == DialogueEditorDataManager.data.currentDialogueId) {
+                if (isPro) {
+                    GUI.color = GUI.contentColor;
+                    GUI.Box(row, string.Empty);
+                    GUI.Box(row, string.Empty);
+                } else {
+                    GUI.Box(row, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+                    GUI.Box(row, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+                }
+            }
+
+            if (row.Contains(Event.current.mousePosition)) {
+                if (isPro) {
+                    GUI.color = Color.black;
+                    GUI.Box(new Rect(row.x - 1, row.y - 1, row.width + 2, row.height + 2), string.Empty);
+                } else {
+                    GUI.color = Color.white;
+                    GUI.Box(row, string.Empty);
+                    GUI.Box(row, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+                    GUI.Box(row, string.Empty, DialogueEditorGUI.gui.GetStyle("box_outset"));
+                }
+            }
+
+            GUI.color = GUI.contentColor;
+
+            Rect labelNumberRow = new Rect(row.x + 2, row.y + 2, row.width - 4, row.height - 4);
+            Rect labelNameRow = new Rect(labelNumberRow.x + 25, labelNumberRow.y, labelNumberRow.width - 25, labelNumberRow.height);
+            GUI.Label(labelNumberRow, DialogueEditorDataManager.data.dialogues[i].id.ToString());
+            GUI.Label(labelNameRow, (DialogueEditorDataManager.data.dialogues[i].name == string.Empty) ? "-" : DialogueEditorDataManager.data.dialogues[i].name);
+        }
+        GUI.EndScrollView();
+    }
 	
 	
 	// CANVAS / DIALOGUE EDITOR
@@ -280,18 +281,19 @@ public class DialogueEditorWindow : EditorWindow {
 		GUIStyle nameTextStyle = new GUIStyle(GUI.skin.GetStyle("textfield"));
 		nameTextStyle.fontSize = 22;
 		GUI.color = GUI.contentColor;
-		if(isPro){
-			GUI.Box(nameShadowRect, string.Empty);
-		}else{
-			GUI.Box(nameShadowRect, string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
-		}
-		if(DialogueEditorDataManager.data.currentDialogueId < DialogueEditorDataManager.data.count && DialogueEditorDataManager.data.currentDialogueId >= 0){
-			DialogueEditorDataManager.data.dialogues[DialogueEditorDataManager.data.currentDialogueId].name = GUI.TextField(nameRect, DialogueEditorDataManager.data.dialogues[DialogueEditorDataManager.data.currentDialogueId].name, nameTextStyle);
-			GUI.color = new Color(1,1,1,0.25f);
-			if(DialogueEditorDataManager.data.dialogues[DialogueEditorDataManager.data.currentDialogueId].name == "") GUI.Label(nameRect, "Dialogue Name", nameTextStyle);
-		}
-		
-		
+        if (isPro) {
+            GUI.Box(nameShadowRect, string.Empty);
+        } else {
+            GUI.Box(nameShadowRect, string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
+        }
+
+        if (DialogueEditorDataManager.data.currentDialogueId < DialogueEditorDataManager.data.count && DialogueEditorDataManager.data.currentDialogueId >= 0) {
+            DialogueEditorDataManager.data.dialogues[DialogueEditorDataManager.data.currentDialogueId].name = DialogueEditorGUI.drawTextField(nameRect, DialogueEditorDataManager.data.dialogues[DialogueEditorDataManager.data.currentDialogueId].name, nameTextStyle);
+            GUI.color = new Color(1, 1, 1, 0.25f);
+            if (DialogueEditorDataManager.data.dialogues[DialogueEditorDataManager.data.currentDialogueId].name == "") {
+                GUI.Label(nameRect, "Dialogue Name", nameTextStyle);
+            }
+        }
 		
 		GUI.color = GUI.contentColor;
 		
@@ -805,8 +807,8 @@ public class DialogueEditorWindow : EditorWindow {
 		}else{
 			GUI.Box(DialogueEditorGUI.getOutlineRect(textFieldRect,1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
 		}
-		phase.text = GUI.TextArea(textFieldRect, phase.text);
-		
+        phase.text = DialogueEditorGUI.drawTextArea(textFieldRect, phase.text);
+
 		Rect outputButtonBackRect = new Rect(textBoxTitleRect.x + textBoxRect.width - 30, textBoxTitleRect.y, textBoxTitleRect.height, textBoxTitleRect.height);
 		if(isPro){
 			DialogueEditorGUI.drawShadowedRect(outputButtonBackRect, 2);
@@ -842,7 +844,7 @@ public class DialogueEditorWindow : EditorWindow {
 		}else{
 			GUI.Box(DialogueEditorGUI.getOutlineRect(textFieldRect,1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
 		}
-		phase.text = GUI.TextArea(textFieldRect, phase.text);
+        phase.text = DialogueEditorGUI.drawTextArea(textFieldRect, phase.text);
 		
 		Rect advancedButtonRect = new Rect(textBoxTitleRect.xMax + 5, textBoxRect.y + 6, 70, textBoxTitleRect.height);
 		phase.advanced = GUI.Toggle(advancedButtonRect, phase.advanced, "Advanced");
@@ -889,9 +891,9 @@ public class DialogueEditorWindow : EditorWindow {
 			}else{
 				GUI.Box(DialogueEditorGUI.getOutlineRect(choiceRect,1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
 			}
-			phase.choices[i] = GUI.TextField(choiceRect, phase.choices[i]);
-			
-			Rect outputButtonRect = new Rect(choiceTitleRect.x + choiceTitleRect.width - 18, choiceTitleRect.y + 2, 16, 16);
+            phase.choices[i] = DialogueEditorGUI.drawTextField(choiceRect, phase.choices[i]);
+
+            Rect outputButtonRect = new Rect(choiceTitleRect.x + choiceTitleRect.width - 18, choiceTitleRect.y + 2, 16, 16);
 			drawOutputConnector(phase, new Vector2(outputButtonRect.x, outputButtonRect.y), i);
 		}
 		
@@ -1028,7 +1030,7 @@ public class DialogueEditorWindow : EditorWindow {
 				float.TryParse(phase.variableSetValue, out floatVar);
 				phase.variableSetValue = EditorGUI.FloatField(newInputRect, floatVar).ToString();
 			}else{
-				phase.variableSetValue = GUI.TextField(newInputRect, phase.variableSetValue);
+				phase.variableSetValue = DialogueEditorGUI.drawTextField(newInputRect, phase.variableSetValue);
 			}
 		}
 		
@@ -1128,7 +1130,7 @@ public class DialogueEditorWindow : EditorWindow {
 				float.TryParse(phase.variableGetValue, out floatVar);
 				phase.variableGetValue = EditorGUI.FloatField(newInputRect, floatVar).ToString();
 			}else{
-				phase.variableGetValue = GUI.TextField(newInputRect, phase.variableGetValue);
+				phase.variableGetValue = DialogueEditorGUI.drawTextField(newInputRect, phase.variableGetValue);
 			}
 		}
 		
@@ -1172,9 +1174,9 @@ public class DialogueEditorWindow : EditorWindow {
         }
 
         GUI.Label(new Rect(conditionTitleRect.x + 2, conditionTitleRect.y + 2, conditionTitleRect.width, conditionTitleRect.height), "Message Name");
-        phase.messageName = GUI.TextField(conditionInputRect, phase.messageName);
+        phase.messageName = DialogueEditorGUI.drawTextField(conditionInputRect, phase.messageName);
         GUI.Label(new Rect(metadataTitleRect.x + 2, metadataTitleRect.y + 2, metadataTitleRect.width, metadataTitleRect.height), "Metadata");
-        phase.metadata = GUI.TextField(metadataInputRect, phase.metadata);
+        phase.metadata = DialogueEditorGUI.drawTextField(metadataInputRect, phase.metadata);
 
         Rect trueRect = new Rect(baseRect.x + 5, conditionRect.yMax + 5, baseRect.width - 10, 55);
         Rect trueTitleRect = new Rect(trueRect.x + 5, trueRect.y + 5, trueRect.width - 10, 20);
@@ -1229,9 +1231,9 @@ public class DialogueEditorWindow : EditorWindow {
 		}
 		
 		GUI.Label(new Rect(sendMessageTitleRect.x + 2, sendMessageTitleRect.y + 2, sendMessageTitleRect.width, sendMessageTitleRect.height), "Message Name");
-		phase.messageName = GUI.TextField(messageInputRect, phase.messageName);
+		phase.messageName = DialogueEditorGUI.drawTextField(messageInputRect, phase.messageName);
 		GUI.Label(new Rect(metadataTitleRect.x + 2, metadataTitleRect.y + 2, metadataTitleRect.width, metadataTitleRect.height), "Metadata");
-		phase.metadata = GUI.TextField(metadataInputRect, phase.metadata);
+		phase.metadata = DialogueEditorGUI.drawTextField(metadataInputRect, phase.metadata);
 		
 		Rect outputButtonRect = new Rect(sendMessageTitleRect.x + sendMessageTitleRect.width - 18, sendMessageTitleRect.y + 2, 16, 16);
 		drawOutputConnector(phase, new Vector2(outputButtonRect.x, outputButtonRect.y), 0);
@@ -1377,7 +1379,7 @@ public class DialogueEditorWindow : EditorWindow {
 				GUI.Box(DialogueEditorGUI.getOutlineRect(themeTextFieldRect,1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
 			}
 			if(phase.theme == null) phase.theme = string.Empty;
-			phase.theme = GUI.TextField(themeTextFieldRect, phase.theme);
+			phase.theme = DialogueEditorGUI.drawTextField(themeTextFieldRect, phase.theme);
 
 			Rect newWindowToggleRect = new Rect(themeTextFieldRect.xMax + 5, themeTextFieldRect.y, 90, 26);
 			phase.newWindow = GUI.Toggle(newWindowToggleRect, phase.newWindow, "New Window");
@@ -1397,7 +1399,7 @@ public class DialogueEditorWindow : EditorWindow {
 				GUI.Box(DialogueEditorGUI.getOutlineRect(nameTextFieldRect,1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
 			}
 			if(phase.name == null) phase.name = string.Empty;
-			phase.name = GUI.TextField(nameTextFieldRect, phase.name);
+			phase.name = DialogueEditorGUI.drawTextField(nameTextFieldRect, phase.name);
 			
 			Rect portraitRect = new Rect(nameRect.x, nameRect.yMax + 5, nameRect.width, 26);
 			if(isPro){
@@ -1413,7 +1415,7 @@ public class DialogueEditorWindow : EditorWindow {
 				GUI.Box(DialogueEditorGUI.getOutlineRect(portraitTextFieldRect,1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
 			}
 			if(phase.portrait == null) phase.portrait = string.Empty;
-			phase.portrait = GUI.TextField(portraitTextFieldRect, phase.portrait);
+			phase.portrait = DialogueEditorGUI.drawTextField(portraitTextFieldRect, phase.portrait);
 			
 			Rect metadataRect = new Rect(portraitRect.x, portraitRect.yMax + 5, portraitRect.width, 26);
 			if(isPro){
@@ -1429,7 +1431,7 @@ public class DialogueEditorWindow : EditorWindow {
 				GUI.Box(DialogueEditorGUI.getOutlineRect(metadataTextFieldRect,1), string.Empty, DialogueEditorGUI.gui.GetStyle("box_inset"));
 			}
 			if(phase.metadata == null) phase.metadata = string.Empty;
-			phase.metadata = GUI.TextField(metadataTextFieldRect, phase.metadata);
+			phase.metadata = DialogueEditorGUI.drawTextField(metadataTextFieldRect, phase.metadata);
 			
 			Rect audioRect = new Rect(metadataRect.x, metadataRect.yMax + 5, metadataRect.width, 48);
 			if(isPro){
@@ -1447,7 +1449,7 @@ public class DialogueEditorWindow : EditorWindow {
 			// FIX THIS SHIT
 			//phase.audio = EditorGUI.ObjectField(audioFileFieldRect, phase.audio, typeof(AudioClip), false) as AudioClip;
 			if(phase.audio == null) phase.audio = string.Empty;
-			phase.audio = GUI.TextField(audioTextFieldRect, phase.audio); 
+			phase.audio = DialogueEditorGUI.drawTextField(audioTextFieldRect, phase.audio); 
 			
 			GUI.Label(new Rect(audioRect.x + 4, audioTextFieldRect.yMax + 5, 100, 20), "Delay:");
 			Rect audioDelayTextFieldRect = new Rect(audioRect.x + 65, audioTextFieldRect.yMax + 5, audioRect.width - 65 - 5, 16);
@@ -1749,21 +1751,24 @@ public class DialogueEditorWindow : EditorWindow {
 	#endregion
 }
 
-namespace DialoguerEditor{
-	// CURVES
-	public class DialogueEditorCurve{
-		public static void draw(Vector2 startPoint, Vector2 endPoint){
-			
-			// Line properties
-			float curveThickness = 1.5f;
-			Texture2D bezierTexture = DialogueEditorGUI.bezierTexture;
-			//Texture2D bezierTexture = null;
-			
-			// Create shadow start and end points
-			Vector2 shadowStartPoint = new Vector2(startPoint.x + 1, startPoint.y + 2);
-			Vector2 shadowEndPoint = new Vector2(endPoint.x + 1, endPoint.y + 2);
-			
-			/*
+namespace DialoguerEditor
+{
+    // CURVES
+    public class DialogueEditorCurve
+    {
+        public static void draw(Vector2 startPoint, Vector2 endPoint)
+        {
+
+            // Line properties
+            float curveThickness = 1.5f;
+            Texture2D bezierTexture = DialogueEditorGUI.bezierTexture;
+            //Texture2D bezierTexture = null;
+
+            // Create shadow start and end points
+            Vector2 shadowStartPoint = new Vector2(startPoint.x + 1, startPoint.y + 2);
+            Vector2 shadowEndPoint = new Vector2(endPoint.x + 1, endPoint.y + 2);
+
+            /*
 			// UNCHANGING
 			// Calculate tangents based on distance from startPoint to endPoint, 60 being the max
 			float tangent = 60;
@@ -1773,8 +1778,8 @@ namespace DialoguerEditor{
 			Vector2 shadowStartTangent = new Vector2(shadowStartPoint.x + tangent, shadowStartPoint.y);
 			Vector2 shadowEndTangent = new Vector2(shadowEndPoint.x - tangent, shadowEndPoint.y);
 			*/
-			
-			/*
+
+            /*
 			// FLIPPY
 			// Calculate tangents based on distance from startPoint to endPoint, 60 being the max
 			float tangent = 60;
@@ -1785,18 +1790,18 @@ namespace DialoguerEditor{
 			Vector2 shadowStartTangent = new Vector2(shadowStartPoint.x + (tangent * check), shadowStartPoint.y);
 			Vector2 shadowEndTangent = new Vector2(shadowEndPoint.x - (tangent * check), shadowEndPoint.y);
 			*/
-			
-			
-			// Easing
-			// Calculate tangents based on distance from startPoint to endPoint, 60 being the max
-			float tangent = Mathf.Clamp((-1)*(startPoint.x - endPoint.x), -100, 100);
-			Vector2 startTangent = new Vector2(startPoint.x + tangent, startPoint.y);
-			Vector2 endTangent = new Vector2(endPoint.x - tangent, endPoint.y);
-			Vector2 shadowStartTangent = new Vector2(shadowStartPoint.x + tangent, shadowStartPoint.y);
-			Vector2 shadowEndTangent = new Vector2(shadowEndPoint.x - tangent, shadowEndPoint.y);
-			
-			
-			/*
+
+
+            // Easing
+            // Calculate tangents based on distance from startPoint to endPoint, 60 being the max
+            float tangent = Mathf.Clamp((-1)*(startPoint.x - endPoint.x), -100, 100);
+            Vector2 startTangent = new Vector2(startPoint.x + tangent, startPoint.y);
+            Vector2 endTangent = new Vector2(endPoint.x - tangent, endPoint.y);
+            Vector2 shadowStartTangent = new Vector2(shadowStartPoint.x + tangent, shadowStartPoint.y);
+            Vector2 shadowEndTangent = new Vector2(shadowEndPoint.x - tangent, shadowEndPoint.y);
+
+
+            /*
 			// Easing 2
 			// Calculate tangents based on distance from startPoint to endPoint, 60 being the max
 			float tangent = Mathf.Clamp((-1)*((startPoint.x - endPoint.x)), -100, 100);
@@ -1805,8 +1810,8 @@ namespace DialoguerEditor{
 			Vector2 shadowStartTangent = new Vector2(shadowStartPoint.x + tangent, shadowStartPoint.y);
 			Vector2 shadowEndTangent = new Vector2(shadowEndPoint.x - tangent, shadowEndPoint.y);
 			*/
-			
-			/*
+
+            /*
 			// Easing with directional tangents
 			// Calculate tangents based on distance from startPoint to endPoint, 100 being the max
 			float tangent = Mathf.Clamp(Vector2.Distance(startPoint, endPoint), -100, 100);
@@ -1815,33 +1820,33 @@ namespace DialoguerEditor{
 			Vector2 shadowStartTangent = new Vector2(shadowStartPoint.x + tangent, shadowStartPoint.y);
 			Vector2 shadowEndTangent = new Vector2(shadowEndPoint.x - tangent, shadowEndPoint.y - (tangent*0.5f));
 			*/
-			
-			bool isPro = EditorGUIUtility.isProSkin;
-			
-			if(isPro){
-				// Draw the shadow first
-				Handles.DrawBezier(
-					shadowStartPoint,
-					shadowEndPoint,
-					shadowStartTangent,
-					shadowEndTangent,
-					new Color(0,0,0,0.25f),
-					bezierTexture,
-					curveThickness
-				);
-			}
-			
-			
-			Handles.DrawBezier(
-				startPoint, 
-				endPoint,
-				startTangent, 
-				endTangent,
-				//new Color(0.8f,0.6f,0.3f,0.25f),
-				(isPro) ? new Color(0.3f,0.7f,0.9f,0.25f) : new Color(0f,0.1f,0.4f,0.6f),
-				bezierTexture,
-				curveThickness
-			);
-		}
-	}
+
+            bool isPro = EditorGUIUtility.isProSkin;
+
+            if (isPro) {
+                // Draw the shadow first
+                Handles.DrawBezier(
+                    shadowStartPoint,
+                    shadowEndPoint,
+                    shadowStartTangent,
+                    shadowEndTangent,
+                    new Color(0, 0, 0, 0.25f),
+                    bezierTexture,
+                    curveThickness
+                );
+            }
+
+
+            Handles.DrawBezier(
+                startPoint,
+                endPoint,
+                startTangent,
+                endTangent,
+                //new Color(0.8f,0.6f,0.3f,0.25f),
+                (isPro) ? new Color(0.3f, 0.7f, 0.9f, 0.25f) : new Color(0f, 0.1f, 0.4f, 0.6f),
+                bezierTexture,
+                curveThickness
+            );
+        }
+    }
 }
