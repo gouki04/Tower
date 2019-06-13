@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace Tower.Editor
 {
-    [CustomEditor(typeof(Tower.Door))]
+    [CustomEditor(typeof(Tower.Component.Door))]
     public class DoorInspector : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
 
-            var door = target as Tower.Door;
+            var door = target as Tower.Component.Door;
             if (door != null) {
                 if (Tower.Editor.Utility.AttributesField(door.Cost)) {
                     if (!Application.isPlaying) {

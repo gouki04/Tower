@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
-using UnityEditor;
 using System.Collections;
 
 namespace Tower
 {
+    public enum ETriggerType
+    {
+        BeforeTrigger = 0,
+        Trigger,
+        AfterTrigger
+    }
+
     public class Tile : MonoBehaviour
     {
         public int Row
@@ -41,50 +45,65 @@ namespace Tower
             }
         }
 
-        public void DestroySelf()
+        protected bool m_Removed = false;
+        public void RemoveSelfInRoutine()
         {
-            ParentTileMap.DeleteTile(this);
+            m_Removed = true;
         }
 
         public bool CheckTrigger(Player player)
         {
             var trigger_succeed = true;
             foreach (var com in m_ComponetList) {
-                if (!com.CheckCanTrigger(player)) {
-                    trigger_succeed = false;
-                    break;
-                }
-            }
-
-            if (!trigger_succeed) {
-                foreach (var com in m_ComponetList) {
+                if (com.CheckCanTrigger(player)) {
+                    com.Triggered = true;
+                    trigger_succeed = true;
+                } else {
                     com.OnTriggerFailed(player);
+                    com.Triggered = false;
                 }
             }
+            
             return trigger_succeed;
         }
 
         public IEnumerator TriggerRoutine(Player player)
         {
             foreach (var com in m_ComponetList) {
-                var routine = com.OnBeforeTrigger(player);
-                if (routine != null) {
-                    yield return StartCoroutine(routine);
+                if (com.Triggered) {
+                    var routine = com.OnBeforeTrigger(player);
+                    if (routine != null) {
+                        yield return StartCoroutine(routine);
+                    }
                 }
             }
 
+            CheckAllComponentRemoved();
+
             foreach (var com in m_ComponetList) {
-                var routine = com.OnTrigger(player);
-                if (routine != null) {
-                    yield return StartCoroutine(routine);
+                if (com.Triggered) {
+                    var routine = com.OnTrigger(player);
+                    if (routine != null) {
+                        yield return StartCoroutine(routine);
+                    }
                 }
             }
 
+            CheckAllComponentRemoved();
+
             foreach (var com in m_ComponetList) {
-                var routine = com.OnAfterTrigger(player);
-                if (routine != null) {
-                    yield return StartCoroutine(routine);
+                if (com.Triggered) {
+                    var routine = com.OnAfterTrigger(player);
+                    if (routine != null) {
+                        yield return StartCoroutine(routine);
+                    }
                 }
+            }
+
+            CheckAllComponentRemoved();
+
+            if (m_Removed) {
+                ParentTileMap.DeleteTile(this);
             }
         }
 
@@ -99,6 +118,16 @@ namespace Tower
         public void RemoveTileComponent(TileComponent com)
         {
             m_ComponetList.Remove(com);
+        }
+
+        protected void CheckAllComponentRemoved()
+        {
+            for (var i = m_ComponetList.Count - 1; i >= 0; --i) {
+                var com = m_ComponetList[i];
+                if (com.Removed) {
+                    Destroy(com);
+                }
+            }
         }
 
         #endregion

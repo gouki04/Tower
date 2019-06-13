@@ -133,6 +133,18 @@ namespace Tower
 
         #endregion
 
+        public Attributes()
+        {
+
+        }
+
+        public Attributes(Attributes attrs)
+        {
+            foreach (var attr in attrs) {
+                SetAttr(attr.Key, attr.Value);
+            }
+        }
+
         public int AdjustAttr(PlayerAttr attr_type, int value)
         {
             int old_value;
@@ -177,6 +189,10 @@ namespace Tower
 
         public void Combine(Attributes attrs)
         {
+            if (attrs == null) {
+                return;
+            }
+
             foreach (var attr in attrs) {
                 this.AdjustAttr(attr.Key, attr.Value);
             }
@@ -184,6 +200,10 @@ namespace Tower
 
         public void Cost(Attributes attrs)
         {
+            if (attrs == null) {
+                return;
+            }
+
             foreach (var attr in attrs) {
                 this.AdjustAttr(attr.Key, -attr.Value);
             }
@@ -191,6 +211,10 @@ namespace Tower
 
         public bool Include(Attributes attrs)
         {
+            if (attrs == null) {
+                return true;
+            }
+
             foreach (var attr in attrs) {
                 if (!this.ExistAttr(attr.Key)) {
                     return false;

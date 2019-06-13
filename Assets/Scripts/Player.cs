@@ -21,6 +21,26 @@ namespace Tower
 
     public class Player : MonoBehaviour
     {
+        public int Row
+        {
+            get {
+                return (int)Math.Floor(transform.localPosition.y);
+            }
+            set {
+                transform.localPosition = new Vector3(transform.localPosition.x, value, transform.localPosition.z);
+            }
+        }
+
+        public int Column
+        {
+            get {
+                return (int)Math.Floor(transform.localPosition.x);
+            }
+            set {
+                transform.localPosition = new Vector3(value, transform.localPosition.y, transform.localPosition.z);
+            }
+        }
+
         public Attributes Attrs
         {
             get {
@@ -30,5 +50,33 @@ namespace Tower
 
         [SerializeField]
         protected Attributes mAllAttrs = new Attributes();
+
+        public Dictionary<string, bool> Switches
+        {
+            get {
+                return m_Switched;
+            }
+        }
+        protected Dictionary<string, bool> m_Switched = new Dictionary<string, bool>();
+
+        public void OpenSwitch(string name)
+        {
+            m_Switched[name] = true;
+        }
+
+        public void CloseSwitch(string name)
+        {
+            m_Switched.Remove(name);
+        }
+
+        public bool CheckSwitch(string name)
+        {
+            bool ret;
+            if (m_Switched.TryGetValue(name, out ret)) {
+                return ret;
+            } else {
+                return false;
+            }
+        }
     }
 }

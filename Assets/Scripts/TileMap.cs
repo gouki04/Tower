@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Tower
@@ -110,6 +107,19 @@ namespace Tower
             } else {
                 DestroyImmediate(tile.gameObject);
             }
+        }
+
+        public void MoveTile(Tile tile, TileIndex pos)
+        {
+            if (mTiles == null || tile == null) {
+                return;
+            }
+
+            mTiles[tile.Row, tile.Column] = null;
+            tile.Row = pos.Row;
+            tile.Column = pos.Column;
+
+            mTiles[tile.Row, tile.Column] = tile;
         }
 
         public void DeleteTileAt(int r, int c, bool delay_delete = true)

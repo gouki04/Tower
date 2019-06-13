@@ -11,6 +11,10 @@ namespace Tower
     public class TileComponent : MonoBehaviour
     {
         public Tile Owner = null;
+        public bool Removed = false;
+
+        [HideInInspector]
+        public bool Triggered = false;
 
         public void Start()
         {
@@ -34,6 +38,11 @@ namespace Tower
 
         public virtual void OnExit()
         {
+        }
+
+        public virtual void RemoveSelfInTrigger()
+        {
+            Removed = true;
         }
 
         public virtual bool CheckCanTrigger(Player player)

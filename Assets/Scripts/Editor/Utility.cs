@@ -50,5 +50,44 @@ namespace Tower.Editor
 
             return changed;
         }
+
+        protected static string m_SwitchKey = string.Empty;
+        public static bool SwitchField(Dictionary<string, bool> switches)
+        {
+            var changed = false;
+            string remove_key = string.Empty;
+            foreach (var sw in switches) {
+                if (sw.Value == true) {
+                    GUILayout.BeginHorizontal();
+
+                    GUILayout.Label(sw.Key);
+
+                    GUI.color = Color.red;
+                    if (GUILayout.Button("X", GUILayout.Width(16))) {
+                        remove_key = sw.Key;
+                    }
+                    GUI.color = GUI.contentColor;
+
+                    GUILayout.EndHorizontal();
+                }
+            }
+
+            if (remove_key != string.Empty) {
+                switches.Remove(remove_key);
+                changed = true;
+            }
+
+            GUILayout.BeginHorizontal();
+            m_SwitchKey = EditorGUILayout.TextField(m_SwitchKey);
+
+            if (GUILayout.Button("+", GUILayout.Width(16))) {
+                switches.Add(m_SwitchKey, true);
+                changed = true;
+            }
+
+            GUILayout.EndHorizontal();
+
+            return changed;
+        }
     }
 }

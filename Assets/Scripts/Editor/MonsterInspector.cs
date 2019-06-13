@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace Tower.Editor
 {
-    [CustomEditor(typeof(Tower.Monster))]
+    [CustomEditor(typeof(Tower.Component.Monster))]
     public class MonsterInspector : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
 
-            var monster = target as Tower.Monster;
+            var monster = target as Tower.Component.Monster;
             if (monster != null) {
                 if (Tower.Editor.Utility.AttributesField(monster.Attrs)) {
                     if (!Application.isPlaying) {
